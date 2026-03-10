@@ -1,0 +1,78 @@
+{
+  "type": "FeatureCollection",
+  "name": "inverterJson",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Layer": "A-GENM",
+        "PaperSpace": null,
+        "SubClasses": "AcDbEntity:AcDbLine",
+        "Linetype": null,
+        "EntityHandle": "BB",
+        "Text": null
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [91, 7, 2],
+          [98, 9, 5]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Layer": "A-GENM",
+        "PaperSpace": null,
+        "SubClasses": "AcDbEntity:AcDbLine",
+        "Linetype": null,
+        "EntityHandle": "BE",
+        "Text": null
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [95, 7, 3],
+          [90, 5, 4]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Layer": "A-GENM",
+        "PaperSpace": null,
+        "SubClasses": "AcDbEntity:AcDbLine",
+        "Linetype": null,
+        "EntityHandle": "BF",
+        "Text": null
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [95, 7, 4],
+          [93, 9, 3]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Layer": "A-GENM",
+        "PaperSpace": null,
+        "SubClasses": "AcDbEntity:AcDbLine",
+        "Linetype": null,
+        "EntityHandle": "C0",
+        "Text": null
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [95, 7, 5],
+          [94, 5, 2]
+        ]
+      }
+    }
+  ]
+}

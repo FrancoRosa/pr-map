@@ -1,9 +1,10 @@
 // import { ComponentExample } from "@/components/component-example";
-import AssetMap from "./components/asset-map";
+import TreeDemo from "./components/tree-demo";
 
 export function App() {
   //   return <ComponentExample />;
-  return <AssetMap />;
+  // return <AssetMap />;
+  return <TreeDemo />;
 }
 
 export default App;
