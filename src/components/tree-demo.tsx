@@ -16,6 +16,25 @@ function Box({ origin = [0, 0, 0], x = 1, y = 1, z = 1 }) {
   );
 }
 
+function FieldBox({ min, max }) {
+  const width = max.x - min.x;
+  const height = max.y - min.y;
+  const depth = max.z - min.z;
+
+  const center = [
+    (min.x + max.x) / 2,
+    (min.y + max.y) / 2,
+    (min.z + max.z) / 2,
+  ];
+
+  return (
+    <mesh position={center}>
+      <boxGeometry args={[width, height, depth]} />
+      <meshStandardMaterial color="royalblue" transparent opacity={0.5} />
+    </mesh>
+  );
+}
+
 function Plane({ setBoxO }) {
   return (
     <mesh
@@ -40,7 +59,7 @@ function SurfPlane({ setBoxO, fieldAverages }) {
   return (
     <mesh
       rotation-x={-Math.PI / 2}
-      position={[xi, yi, zi]}
+      position={[xi, yi + 0.02, zi]}
       onClick={(e) => {
         const {
           point: { x, y, z },
@@ -81,6 +100,27 @@ const TreeDemo = () => {
       getAverage(usefulData.map((d) => d.geometry.coordinates[0][0])) - 2410000,
     y: Math.max(...usefulData.map((d) => d.geometry.coordinates[0][2])),
     z: getAverage(usefulData.map((d) => d.geometry.coordinates[0][1])) - 300000,
+  };
+
+  const fieldEdges = {
+    min: {
+      x:
+        Math.min(...usefulData.map((d) => d.geometry.coordinates[0][0])) -
+        2410000,
+      y: Math.min(...usefulData.map((d) => d.geometry.coordinates[0][2])),
+      z:
+        Math.min(...usefulData.map((d) => d.geometry.coordinates[0][1])) -
+        300000,
+    },
+    max: {
+      x:
+        Math.max(...usefulData.map((d) => d.geometry.coordinates[0][0])) -
+        2410000,
+      y: Math.max(...usefulData.map((d) => d.geometry.coordinates[0][2])),
+      z:
+        Math.max(...usefulData.map((d) => d.geometry.coordinates[0][1])) -
+        300000,
+    },
   };
 
   const updatePos = () => {
@@ -169,6 +209,7 @@ const TreeDemo = () => {
           <axesHelper />
           <gridHelper args={[50]} position={gridPosition} />
           <ExcavatorModel {...{ base, boom, stick, bucket, boxO }} />
+          <FieldBox max={fieldEdges.max} min={fieldEdges.min} />
           <Plane {...{ setBoxO }} />
           <SurfPlane setBoxO={setBoxO} fieldAverages={fieldAverages} />
 
