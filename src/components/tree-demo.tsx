@@ -5,6 +5,7 @@ import { ExcavatorModel } from "./excavator-model";
 import GeoJsonLayer from "./geojson-line";
 import fieldData from "../assets/inverterJson.json";
 import { Button } from "./ui/button";
+import * as THREE from "three";
 
 function Box({ origin = [0, 0, 0], x = 1, y = 1, z = 1 }) {
   return (
@@ -16,7 +17,7 @@ function Box({ origin = [0, 0, 0], x = 1, y = 1, z = 1 }) {
   );
 }
 
-function FieldBox({ min, max }) {
+function FieldBox({ min, max, setBoxO }) {
   const width = max.x - min.x;
   const height = max.y - min.y;
   const depth = max.z - min.z;
@@ -28,9 +29,21 @@ function FieldBox({ min, max }) {
   ];
 
   return (
-    <mesh position={center}>
-      <boxGeometry args={[width, height, depth]} />
-      <meshStandardMaterial color="royalblue" transparent opacity={0.5} />
+    <mesh
+      position={center}
+      onClick={(e) => {
+        const {
+          point: { x, y, z },
+        } = e;
+        setBoxO([
+          x + center[0] + width / 2,
+          max.y,
+          center[2] + z - depth * 0.3,
+        ]);
+      }}
+    >
+      <boxGeometry args={[width + 20, height, depth + 20]} />
+      <meshStandardMaterial color="royalblue" transparent opacity={0.3} />
     </mesh>
   );
 }
@@ -70,7 +83,12 @@ function SurfPlane({ setBoxO, fieldAverages }) {
       }}
     >
       <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial transparent opacity={0.1} />
+      <meshStandardMaterial
+        transparent
+        opacity={0.0}
+        color="royalblue"
+        side={THREE.DoubleSide}
+      />
     </mesh>
   );
 }
@@ -97,9 +115,9 @@ const TreeDemo = () => {
 
   const fieldAverages = {
     x:
-      getAverage(usefulData.map((d) => d.geometry.coordinates[0][0])) - 2410000,
-    y: Math.max(...usefulData.map((d) => d.geometry.coordinates[0][2])),
-    z: getAverage(usefulData.map((d) => d.geometry.coordinates[0][1])) - 300000,
+      getAverage(usefulData.map((d) => d.geometry.coordinates[1][0])) - 2410000,
+    y: Math.max(...usefulData.map((d) => d.geometry.coordinates[1][2])),
+    z: getAverage(usefulData.map((d) => d.geometry.coordinates[1][1])) - 300000,
   };
 
   const fieldEdges = {
@@ -207,11 +225,16 @@ const TreeDemo = () => {
         <OrbitControls makeDefault />
         <group position={sceneOffset}>
           <axesHelper />
-          <gridHelper args={[50]} position={gridPosition} />
+          {/* <gridHelper args={[50]} position={gridPosition} /> */}
           <ExcavatorModel {...{ base, boom, stick, bucket, boxO }} />
-          <FieldBox max={fieldEdges.max} min={fieldEdges.min} />
+          <FieldBox
+            max={fieldEdges.max}
+            min={fieldEdges.min}
+            fieldAverages={fieldAverages}
+            setBoxO={setBoxO}
+          />
           <Plane {...{ setBoxO }} />
-          <SurfPlane setBoxO={setBoxO} fieldAverages={fieldAverages} />
+          {/* <SurfPlane setBoxO={setBoxO} fieldAverages={fieldAverages} /> */}
 
           <GeoJsonLayer data={{ features: usefulData }} lineWidth={2} />
         </group>
