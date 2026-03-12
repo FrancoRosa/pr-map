@@ -20,7 +20,7 @@ function Box({ origin = [0, 0, 0], movement }) {
   }, [origin, movement]);
 
   return (
-    <RigidBody ref={body} type="kinematicPosition" colliders="cuboid" sensor>
+    <RigidBody ref={body} type="kinematicPosition" colliders="cuboid">
       <mesh>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="lightgreen" />
@@ -29,33 +29,22 @@ function Box({ origin = [0, 0, 0], movement }) {
   );
 }
 
-function FieldBox({ min, max, setBoxO }) {
-  const width = max.x - min.x;
-  const height = max.y - min.y;
-  const depth = max.z - min.z;
-
-  const center = [
-    (min.x + max.x) / 2,
-    (min.y + max.y) / 2,
-    (min.z + max.z) / 2,
-  ];
-
+function FieldBox({ width, height, depth, setBoxO }) {
   return (
     <mesh
-      position={center}
       onClick={(e) => {
         const {
           point: { x, y, z },
         } = e;
-        setBoxO([
-          x + center[0] + width / 2,
-          max.y,
-          center[2] + z - depth * 0.3,
-        ]);
+        setBoxO([x, y, z]);
       }}
     >
       <boxGeometry args={[width + 20, height, depth + 20]} />
-      <meshStandardMaterial color="royalblue" transparent opacity={0.3} />
+      <meshStandardMaterial
+        color="royalblue"
+        // transparent
+        opacity={0.3}
+      />
     </mesh>
   );
 }
@@ -96,7 +85,7 @@ function SurfPlane({ setBoxO, fieldAverages }) {
     >
       <planeGeometry args={[100, 100]} />
       <meshStandardMaterial
-        transparent
+        // transparent
         opacity={0.0}
         color="royalblue"
         side={THREE.DoubleSide}
@@ -143,72 +132,103 @@ const TreeDemo = () => {
   const [boxO, setBoxO] = useState([0, 0, 0]);
   const [sceneOffset, setSceneOffset] = useState([0, 0, 0]);
   const [gridPosition, setGridPosition] = useState([1, 1, 1]);
-  const usefulData = fieldData.features.filter(
-    (d) => d.geometry.coordinates[0][2] !== 0,
-  );
+  // const usefulData = fieldData.features.filter(
+  //   (d) => d.geometry.coordinates[0][2] !== 0,
+  // );
 
   const getAverage = (arr) => {
     if (arr.length === 0) return 0;
     return arr.reduce((a, b) => a + b) / arr.length;
   };
 
-  const fieldAverages = {
-    x:
-      getAverage(usefulData.map((d) => d.geometry.coordinates[1][0])) - 2410000,
-    y: Math.max(...usefulData.map((d) => d.geometry.coordinates[1][2])),
-    z: getAverage(usefulData.map((d) => d.geometry.coordinates[1][1])) - 300000,
-  };
+  // const fieldAverages = {
+  //   x:
+  //     getAverage(usefulData.map((d) => d.geometry.coordinates[1][0])) - 2410000,
+  //   y: Math.max(...usefulData.map((d) => d.geometry.coordinates[1][2])),
+  //   z: getAverage(usefulData.map((d) => d.geometry.coordinates[1][1])) - 300000,
+  // };
+
+  // const fieldEdges = {
+  //   min: {
+  //     x:
+  //       Math.min(...usefulData.map((d) => d.geometry.coordinates[0][0])) -
+  //       2410000,
+  //     y: Math.min(...usefulData.map((d) => d.geometry.coordinates[0][2])),
+  //     z:
+  //       Math.min(...usefulData.map((d) => d.geometry.coordinates[0][1])) -
+  //       300000,
+  //   },
+  //   max: {
+  //     x:
+  //       Math.max(...usefulData.map((d) => d.geometry.coordinates[0][0])) -
+  //       2410000,
+  //     y: Math.max(...usefulData.map((d) => d.geometry.coordinates[0][2])),
+  //     z:
+  //       Math.max(...usefulData.map((d) => d.geometry.coordinates[0][1])) -
+  //       300000,
+  //   },
+  // };
 
   const fieldEdges = {
     min: {
-      x:
-        Math.min(...usefulData.map((d) => d.geometry.coordinates[0][0])) -
-        2410000,
-      y: Math.min(...usefulData.map((d) => d.geometry.coordinates[0][2])),
-      z:
-        Math.min(...usefulData.map((d) => d.geometry.coordinates[0][1])) -
-        300000,
+      x: -10,
+      y: -5,
+      z: -10,
     },
     max: {
-      x:
-        Math.max(...usefulData.map((d) => d.geometry.coordinates[0][0])) -
-        2410000,
-      y: Math.max(...usefulData.map((d) => d.geometry.coordinates[0][2])),
-      z:
-        Math.max(...usefulData.map((d) => d.geometry.coordinates[0][1])) -
-        300000,
+      x: 10,
+      y: -1,
+      z: 10,
     },
   };
 
+  const fieldCenter = [
+    (fieldEdges.min.x + fieldEdges.max.x) / 2,
+    (fieldEdges.min.y + fieldEdges.max.y) / 2,
+    (fieldEdges.min.z + fieldEdges.max.z) / 2,
+  ];
+
+  const fieldSize = {
+    width: fieldEdges.max.x - fieldEdges.min.x,
+    height: fieldEdges.max.y - fieldEdges.min.y,
+    depth: fieldEdges.max.z - fieldEdges.min.z,
+  };
+
+  useEffect(() => {
+    setBoxO([fieldCenter[0], 1, fieldCenter[2]]);
+  }, [fieldCenter[0], fieldCenter[1], fieldCenter[2]]);
+
   const handleCollision = (event) => {
-    console.log({ event });
-    // const manifold = event.manifold;
-
-    // const point = manifold.solverContactPoint(0);
-    // console.log({ point });
+    console.log("onCollisionEnter", event);
+    setMessage("Collision event fired");
   };
 
-  const updatePos = () => {
-    setGridPosition([fieldAverages.x, fieldAverages.y, fieldAverages.z]);
-    const data = usefulData[index];
-    const [xi, yi, zi] = data?.geometry?.coordinates[0];
-    const [xo, yo, zo] = data?.geometry?.coordinates[1];
-    setSceneOffset([-xi + 2410000, -zi, -yi + 300000]);
-    setMessage(
-      JSON.stringify({ index, coordss: [xi, yi, zi, xo, yo, zo] }, null, 2),
-    );
-    // controllerRef.current?.setLookAt(xi, yi, zi, xo, yo + 10, zo + 10, true);
-    controllerRef.current?.setLookAt(0, 5, 10, 0, 0, 0, true);
+  const handleIntersection = (event) => {
+    console.log("onIntersectionEnter", event);
+    setMessage("Intersection event fired");
   };
 
-  const handleButton = () => {
-    setIndex((i) => (i < usefulData.length - 1 ? i + 1 : 0));
-    updatePos();
-  };
-  const handle10xButton = () => {
-    setIndex((i) => (i < usefulData.length - 10 ? i + 10 : 0));
-    updatePos();
-  };
+  // const updatePos = () => {
+  //   setGridPosition([fieldAverages.x, fieldAverages.y, fieldAverages.z]);
+  //   const data = usefulData[index];
+  //   const [xi, yi, zi] = data?.geometry?.coordinates[0];
+  //   const [xo, yo, zo] = data?.geometry?.coordinates[1];
+  //   setSceneOffset([-xi + 2410000, -zi, -yi + 300000]);
+  //   setMessage(
+  //     JSON.stringify({ index, coordss: [xi, yi, zi, xo, yo, zo] }, null, 2),
+  //   );
+  //   // controllerRef.current?.setLookAt(xi, yi, zi, xo, yo + 10, zo + 10, true);
+  //   controllerRef.current?.setLookAt(0, 5, 10, 0, 0, 0, true);
+  // };
+
+  // const handleButton = () => {
+  //   setIndex((i) => (i < usefulData.length - 1 ? i + 1 : 0));
+  //   updatePos();
+  // };
+  // const handle10xButton = () => {
+  //   setIndex((i) => (i < usefulData.length - 10 ? i + 10 : 0));
+  //   updatePos();
+  // };
 
   return (
     <div className="bg-gray-900 h-screen text-gray-300 font-bold">
@@ -235,9 +255,9 @@ const TreeDemo = () => {
         />
 
         <br />
-        <Button onClick={handleButton}>Data</Button>
+        {/* <Button onClick={handleButton}>Data</Button>
         <Button onClick={handle10xButton}>+10</Button>
-        <pre className="text-xs">{message}</pre>
+        <pre className="text-xs">{message}</pre> */}
       </div>
       <Canvas>
         <ambientLight intensity={Math.PI / 2} />
@@ -255,26 +275,25 @@ const TreeDemo = () => {
           {/* <gridHelper args={[50]} position={gridPosition} /> */}
 
           <Physics colliders="cuboid" debug>
-            {/* <RigidBody gravityScale={0} type="dynamic"> */}
-            {/* <ExcavatorModel {...{ movement, boxO }} /> */}
             <Box origin={boxO} movement={movement} />
-            {/* </RigidBody> */}
             <RigidBody
+              position={fieldCenter}
               gravityScale={0}
               type="fixed"
               sensor
               colliders="cuboid"
-              onIntersectionEnter={(e) => console.log("box overlap", e)}
+              onIntersectionEnter={handleIntersection}
+              onCollisionEnter={handleCollision}
             >
               <FieldBox
-                max={{ x: -1, y: -1, z: -1 }}
-                min={{ x: -5, y: -5, z: -5 }}
+                width={fieldSize.width}
+                height={fieldSize.height}
+                depth={fieldSize.depth}
                 setBoxO={setBoxO}
               />
             </RigidBody>
-            {/* <GeoJsonLayer data={{ features: usefulData }} lineWidth={1} /> */}
           </Physics>
-          <Plane {...{ setBoxO }} />
+          {/* <Plane {...{ setBoxO }} /> */}
           {/* <SurfPlane setBoxO={setBoxO} fieldAverages={fieldAverages} /> */}
         </group>
       </Canvas>
