@@ -33,16 +33,27 @@ const TreeDemo = () => {
           <RigidBody
             type="fixed"
             name="earth"
+            gravityScale={0}
             onCollisionEnter={(e) => console.log(e)}
           >
             <mesh position={[1, -4, 1]}>
               <boxGeometry args={[3, 3, 3]} />
-              <meshStandardMaterial color="lightgreen" />
+              <meshStandardMaterial
+                color="lightgreen"
+                transparent
+                opacity={0.3}
+              />
             </mesh>
           </RigidBody>
 
           {/*  ___________moving cube___________  */}
-          <RigidBody ref={body} name="body">
+          <RigidBody
+            ref={body}
+            name="body"
+            gravityScale={0}
+            type="kinematicPosition"
+            activeCollisionTypes={60943}
+          >
             <mesh position={[1, -1, 1]}>
               <boxGeometry args={[1, 1, 1]} />
               <meshStandardMaterial color="lightblue" />
