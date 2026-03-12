@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
-import { CameraControls, Center, OrbitControls } from "@react-three/drei"; // 1. Import the controls
+import { CameraControls, OrbitControls } from "@react-three/drei"; // 1. Import the controls
 import { useEffect, useRef, useState } from "react";
-import { ExcavatorModel } from "./excavator-model";
-import GeoJsonLayer from "./geojson-line";
+// import { ExcavatorModel } from "./excavator-model";
+// import GeoJsonLayer from "./geojson-line";
 import fieldData from "../assets/inverterJson.json";
 import { Button } from "./ui/button";
 import * as THREE from "three";
